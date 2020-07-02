@@ -140,15 +140,21 @@ def joint_probability(people, one_gene, two_genes, have_trait):
         * everyone in set `have_trait` has the trait, and
         * everyone not in set` have_trait` does not have the trait.
     """
+    # Initialize an empty set for people without the gene
     no_gene = set()
-    no_parents_people = no_parents(people) 
 
-    probabilities = set()
+    # People without parents set
+    no_parents_people = no_parents(people)
 
+    # Initialize an empty list to keep track of the probabilities to multiply
+    probabilities = []
+
+    # Add people with zero genes to the no_gene set
     for person in people.keys():
         if person not in one_gene and person not in two_genes:
             no_gene.add(person)
 
+    # Loop through the people with zero genes and add their probability to the list
     for person in no_gene:
         probability = 1
 
@@ -157,7 +163,7 @@ def joint_probability(people, one_gene, two_genes, have_trait):
         else:
             probability = PROBS["trait"][0][False]
 
-        probabilities.add(probability)
+        probabilities.append(probability)
 
         if person in no_parents_people:
             probability = PROBS["gene"][0]
@@ -186,8 +192,9 @@ def joint_probability(people, one_gene, two_genes, have_trait):
                 else:
                     probability = PROBS["mutation"] * PROBS["mutation"]
 
-        probabilities.add(probability)
+        probabilities.append(probability)
 
+    # Loop through the people with one gene and add their probability to the list
     for person in one_gene:
         probability = 1
 
@@ -196,7 +203,7 @@ def joint_probability(people, one_gene, two_genes, have_trait):
         else:
             probability = PROBS["trait"][1][False]
 
-        probabilities.add(probability)
+        probabilities.append(probability)
 
         if person in no_parents_people:
             probability = PROBS["gene"][1]
@@ -225,8 +232,9 @@ def joint_probability(people, one_gene, two_genes, have_trait):
                 else:
                     probability = 2 * PROBS["mutation"] * (1 - PROBS["mutation"])
 
-        probabilities.add(probability)
+        probabilities.append(probability)
 
+    # Loop through the people with two genes and add their probability to the list
     for person in two_genes:
         probability = 1
 
@@ -235,7 +243,7 @@ def joint_probability(people, one_gene, two_genes, have_trait):
         else:
             probability = PROBS["trait"][2][False]
 
-        probabilities.add(probability)
+        probabilities.append(probability)
 
         if person in no_parents_people:
             probability = PROBS["gene"][2]
@@ -264,13 +272,16 @@ def joint_probability(people, one_gene, two_genes, have_trait):
                 else:
                     probability = (1 - PROBS["mutation"]) * (1 - PROBS["mutation"])
 
-        probabilities.add(probability)
+        probabilities.append(probability)
 
+    # Return the product of all probabilities
     return numpy.product(list(probabilities))
 
 
 def no_parents(people):
-
+    """
+    Return a set with the people that have no parents
+    """
     no_parents_people = set()
 
     for person in people.keys():
@@ -286,6 +297,7 @@ def update(probabilities, one_gene, two_genes, have_trait, p):
     Which value for each distribution is updated depends on whether
     the person is in `have_gene` and `have_trait`, respectively.
     """
+    # Loop through all the people and update the probabilities
     for person in probabilities.keys():
         if person in one_gene:
             probabilities[person]["gene"][1] += p
